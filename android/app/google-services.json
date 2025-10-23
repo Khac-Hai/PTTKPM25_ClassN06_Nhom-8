@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "41477854761",
+    "project_id": "quan-ly-chi-f9b45",
+    "storage_bucket": "quan-ly-chi-f9b45.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:41477854761:android:934b2696c836f95871ae38",
+        "android_client_info": {
+          "package_name": "com.example.a"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "41477854761-ogb4l5nj5pch88gp94kiv0q9fsrrdph9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsqHbwj8n1ur6tX4tGtAQKswEZjiYiuQM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "41477854761-ogb4l5nj5pch88gp94kiv0q9fsrrdph9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
