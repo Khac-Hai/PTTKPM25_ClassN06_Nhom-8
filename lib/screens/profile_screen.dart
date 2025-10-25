@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:quan_ly_chi_tieu/auth/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -56,9 +57,10 @@ class ProfileScreen extends StatelessWidget {
                   await FirebaseAuth.instance.signOut();
                   // Sau khi đăng xuất, điều hướng đến màn hình đăng nhập.
                   // Nếu bạn đã định nghĩa route '/login', sử dụng:
-                  Navigator.of(context).pushReplacementNamed('/login');
+                  //Navigator.of(context).pushReplacementNamed('/login');
                   // Hoặc thay thế bằng:
-                  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()));
                 },
               ),
             ],

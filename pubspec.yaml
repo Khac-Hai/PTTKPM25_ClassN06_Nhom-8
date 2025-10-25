@@ -17,6 +17,7 @@ dependencies:
   google_sign_in: ^6.3.0
   shared_preferences: ^2.5.2
   cupertino_icons: ^1.0.8
+  flutter_facebook_auth: ^7.1.2
 
 dev_dependencies:
   flutter_test:
@@ -27,4 +28,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/google-icon.png
-    - assets/icons/facebook-icon.jpg
+    - assets/icons/facebook-icon.png

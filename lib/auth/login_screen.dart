@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quan_ly_chi_tieu/auth/forgot_password.dart';
 import 'package:quan_ly_chi_tieu/auth/google_signin.dart';
+import 'package:quan_ly_chi_tieu/auth/facebook_signin.dart';
 import 'package:quan_ly_chi_tieu/auth/registration.dart';
 import '../screens/main_screen.dart';
 
@@ -35,10 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       User? user = credential.user;
       if (user != null) {
-        await user.reload(); // Cập nhật lại thông tin user
+        await user.reload(); // cập nhật lại thông tin user
         user = FirebaseAuth.instance.currentUser;
         if (user != null && !user.emailVerified) {
-          // Email chưa xác nhận
+          // email chưa xác nhận
           setState(() {
             _errorMessage =
                 "Tài khoản của bạn chưa được xác nhận. Vui lòng xác nhận email.";
@@ -88,6 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 24),
+
+              // 🔹 Email
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -100,6 +103,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
+
+              // 🔹 Mật khẩu
               TextField(
                 controller: _passwordController,
                 decoration: InputDecoration(
@@ -126,6 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onSubmitted: (_) => _loginWithEmail(),
               ),
               const SizedBox(height: 8),
+
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -134,6 +140,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // 🔹 Nút đăng nhập
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
@@ -146,16 +154,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: const Text("Đăng nhập"),
                     ),
+
               const SizedBox(height: 16),
+
+              // 🔹 Hiển thị lỗi
               if (_errorMessage != null)
                 Text(
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
+
               const SizedBox(height: 24),
+
+              // 🔹 Đăng nhập bằng Google
               const GoogleSignInButton(),
+
+              const SizedBox(height: 16),
+
+              // 🔹 Đăng nhập bằng Facebook
+              const FacebookSignInButton(),
+
               const SizedBox(height: 24),
+
+              // 🔹 Liên kết đăng ký
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
