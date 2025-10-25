@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:quan_ly_chi_tieu/screens/transactions_screen.dart';
+// Import màn Chat
+import 'package:quan_ly_chi_tieu/features/chat/presentation/pages/chat_screen.dart';
 
-/// Model tạm cho Transaction
 class SimpleTransaction {
-  final String type; // 'income' hoặc 'expense'
+  final String type; // 'income' | 'expense'
   final double amount;
   final DateTime date;
   final String description;
   final String category;
-
   SimpleTransaction(
     this.type,
     this.amount,
@@ -24,7 +24,6 @@ class SimpleTransaction {
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -38,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<FlSpot> _lineSpots = [];
   double _maxY = 0;
 
-  int _chartMode = 6;
+  int _chartMode = 6; // 1: 1 tháng, 6: 6 tháng
   int _selectedMonth = DateTime.now().month;
   int _selectedYear = DateTime.now().year;
   bool _isFirstHalf = true;
@@ -66,23 +65,21 @@ class _HomeScreenState extends State<HomeScreen> {
             .where("userId", isEqualTo: user.uid)
             .get();
 
-    double income = 0;
-    double expense = 0;
-    final List<SimpleTransaction> allTx = [];
+    double income = 0, expense = 0;
+    final allTx = <SimpleTransaction>[];
     for (var doc in qs.docs) {
       final data = doc.data();
-      final type = data['type'] ?? 'expense';
+      final type = (data['type'] ?? 'expense') as String;
       final amount = (data['amount'] ?? 0).toDouble();
       final ts = data['date'] as Timestamp?;
       final date = ts?.toDate() ?? DateTime.now();
       final desc = data['description'] ?? '';
       final cat = data['category'] ?? 'Khác';
 
-      if (type == 'income') {
+      if (type == 'income')
         income += amount;
-      } else {
+      else
         expense += amount;
-      }
       allTx.add(SimpleTransaction(type, amount, date, desc, cat));
     }
     _totalIncome = income;
@@ -93,25 +90,18 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _isLoading = false);
   }
 
-  void _buildChartData() {
-    if (_chartMode == 6) {
-      _build6MonthsChart();
-    } else {
-      _build1MonthChart();
-    }
-  }
+  void _buildChartData() =>
+      _chartMode == 6 ? _build6MonthsChart() : _build1MonthChart();
 
   void _build6MonthsChart() {
     final now = DateTime.now();
-    int year = now.year;
-    int startMonth = _isFirstHalf ? 1 : 7;
-    int endMonth = _isFirstHalf ? 6 : 12;
+    final year = now.year;
+    final startMonth = _isFirstHalf ? 1 : 7;
+    final endMonth = _isFirstHalf ? 6 : 12;
 
-    final Map<int, double> monthlyExpense = {};
-    for (int m = startMonth; m <= endMonth; m++) {
-      monthlyExpense[m] = 0;
-    }
-
+    final monthlyExpense = <int, double>{
+      for (var m = startMonth; m <= endMonth; m++) m: 0,
+    };
     for (var tx in _allTransactions) {
       if (tx.type == 'expense' && tx.date.year == year) {
         final m = tx.date.month;
@@ -121,17 +111,13 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    final List<FlSpot> spots = [];
-    int index = 0;
-    for (int m = startMonth; m <= endMonth; m++) {
-      final val = monthlyExpense[m] ?? 0;
-      spots.add(FlSpot(index.toDouble(), val));
-      index++;
+    final spots = <FlSpot>[];
+    var idx = 0;
+    for (var m = startMonth; m <= endMonth; m++) {
+      spots.add(FlSpot(idx.toDouble(), monthlyExpense[m] ?? 0));
+      idx++;
     }
-    double maxY = 0;
-    for (var s in spots) {
-      if (s.y > maxY) maxY = s.y;
-    }
+    final maxY = spots.fold<double>(0, (p, s) => s.y > p ? s.y : p);
     setState(() {
       _lineSpots = spots;
       _maxY = maxY;
@@ -139,15 +125,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _build1MonthChart() {
-    int year = _selectedYear;
-    int month = _selectedMonth;
-    int lastDay = DateTime(year, month + 1, 0).day;
+    final year = _selectedYear;
+    final month = _selectedMonth;
+    final lastDay = DateTime(year, month + 1, 0).day;
 
-    final Map<int, double> dailyExpense = {};
-    for (int d = 1; d <= lastDay; d++) {
-      dailyExpense[d] = 0;
-    }
-
+    final dailyExpense = <int, double>{for (var d = 1; d <= lastDay; d++) d: 0};
     for (var tx in _allTransactions) {
       if (tx.type == 'expense' &&
           tx.date.year == year &&
@@ -156,114 +138,97 @@ class _HomeScreenState extends State<HomeScreen> {
             (dailyExpense[tx.date.day] ?? 0) + tx.amount;
       }
     }
-    final List<FlSpot> spots = [];
-    for (int d = 1; d <= lastDay; d++) {
-      spots.add(FlSpot((d - 1).toDouble(), dailyExpense[d] ?? 0));
-    }
-    double maxY = 0;
-    for (var s in spots) {
-      if (s.y > maxY) maxY = s.y;
-    }
+
+    final spots = <FlSpot>[
+      for (var d = 1; d <= lastDay; d++)
+        FlSpot((d - 1).toDouble(), (dailyExpense[d] ?? 0).toDouble()),
+    ];
+    final maxY = spots.fold<double>(0, (p, s) => s.y > p ? s.y : p);
     setState(() {
       _lineSpots = spots;
       _maxY = maxY;
     });
   }
 
-  Widget _buildChartModeToggle() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ChoiceChip(
-          label: const Text("1 tháng"),
-          selected: _chartMode == 1,
-          onSelected: (selected) {
-            if (selected) {
-              setState(() => _chartMode = 1);
-              _buildChartData();
-            }
-          },
-        ),
-        const SizedBox(width: 16),
-        ChoiceChip(
-          label: const Text("6 tháng"),
-          selected: _chartMode == 6,
-          onSelected: (selected) {
-            if (selected) {
-              setState(() => _chartMode = 6);
-              _buildChartData();
-            }
-          },
-        ),
-      ],
-    );
-  }
+  Widget _buildChartModeToggle() => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      ChoiceChip(
+        label: const Text("1 tháng"),
+        selected: _chartMode == 1,
+        onSelected: (v) {
+          if (v) {
+            setState(() => _chartMode = 1);
+            _buildChartData();
+          }
+        },
+      ),
+      const SizedBox(width: 16),
+      ChoiceChip(
+        label: const Text("6 tháng"),
+        selected: _chartMode == 6,
+        onSelected: (v) {
+          if (v) {
+            setState(() => _chartMode = 6);
+            _buildChartData();
+          }
+        },
+      ),
+    ],
+  );
 
-  Widget _buildMonthDropdown() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text("Chọn tháng: "),
-        DropdownButton<int>(
-          value: _selectedMonth,
-          items: List.generate(12, (index) {
-            int m = index + 1;
-            return DropdownMenuItem(value: m, child: Text("M$m"));
-          }),
-          onChanged: (val) {
-            if (val != null) {
-              setState(() => _selectedMonth = val);
-              _buildChartData();
-            }
-          },
+  Widget _buildMonthDropdown() => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      const Text("Chọn tháng: "),
+      DropdownButton<int>(
+        value: _selectedMonth,
+        items: List.generate(
+          12,
+          (i) => DropdownMenuItem(value: i + 1, child: Text("M${i + 1}")),
         ),
-      ],
-    );
-  }
+        onChanged: (val) {
+          if (val != null) {
+            setState(() => _selectedMonth = val);
+            _buildChartData();
+          }
+        },
+      ),
+    ],
+  );
 
-  Widget _buildSixMonthDropdown() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text("Chọn: "),
-        DropdownButton<bool>(
-          value: _isFirstHalf,
-          items: const [
-            DropdownMenuItem(value: true, child: Text("6 tháng đầu")),
-            DropdownMenuItem(value: false, child: Text("6 tháng cuối")),
-          ],
-          onChanged: (val) {
-            if (val != null) {
-              setState(() => _isFirstHalf = val);
-              _buildChartData();
-            }
-          },
-        ),
-      ],
-    );
-  }
+  Widget _buildSixMonthDropdown() => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      const Text("Chọn: "),
+      DropdownButton<bool>(
+        value: _isFirstHalf,
+        items: const [
+          DropdownMenuItem(value: true, child: Text("6 tháng đầu")),
+          DropdownMenuItem(value: false, child: Text("6 tháng cuối")),
+        ],
+        onChanged: (val) {
+          if (val != null) {
+            setState(() => _isFirstHalf = val);
+            _buildChartData();
+          }
+        },
+      ),
+    ],
+  );
 
-  /// Hàm tính ticks: 4 mốc => [0, step, 2step, maxY]
-  /// step = (maxY / 3).roundToDouble()
   List<double> _getCustomTicks(double maxY) {
-    if (maxY <= 0) {
-      return [0, 1];
-    }
-    double step = (maxY / 3).roundToDouble();
-    if (step < 1) step = 1; // tránh step=0
-    List<double> ticks = [0, step, step * 2];
-    if (step * 2 < maxY) {
-      ticks.add(maxY);
-    }
-    // nếu step*2 == maxY, thì 3 mốc. Nếu step*2 > maxY => ta vẫn add maxY
-    // => [0, step, step*2, maxY] (có thể trùng step*2==maxY => hiển thị 3 mốc)
-    return ticks;
+    if (maxY <= 0) return [0, 1];
+    var step = (maxY / 3).roundToDouble();
+    if (step < 1) step = 1;
+    final ticks = [0, step, step * 2];
+    if (step * 2 < maxY) ticks.add(maxY);
+    return ticks.map((t) => t.toDouble()).toList();
   }
 
   Widget _buildLineChart() {
-    double chartMaxY = _maxY <= 0 ? 1 : _maxY;
-    List<double> ticks = _getCustomTicks(chartMaxY);
-
+    final chartMaxY = _maxY <= 0 ? 1.0 : _maxY;
+    final ticks = _getCustomTicks(chartMaxY);
     return LineChart(
       LineChartData(
         minX: 0,
@@ -278,11 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
               showTitles: true,
               reservedSize: 35,
               getTitlesWidget: (value, meta) {
-                // So sánh value với ticks
-                double nearest = _findNearest(value, ticks);
+                final nearest = _findNearest(value, ticks);
                 if ((nearest - value).abs() < 0.5) {
-                  // In integer => .toStringAsFixed(0)
-                  // Ví dụ 5800 => "5800", 1933 => "1933"
                   return Text(
                     nearest.toStringAsFixed(0),
                     style: const TextStyle(fontSize: 12),
@@ -298,10 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
               reservedSize: 30,
               getTitlesWidget: (value, meta) {
                 if (_chartMode == 6) {
-                  // 6 tháng => M + actualMonth
-                  int startMonth = _isFirstHalf ? 1 : 7;
-                  int index = value.toInt();
-                  int actualMonth = startMonth + index;
+                  final startMonth = _isFirstHalf ? 1 : 7;
+                  final actualMonth = startMonth + value.toInt();
                   return Transform.translate(
                     offset: const Offset(0, 6),
                     child: Text(
@@ -310,7 +270,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 } else {
-                  // 1 tháng => hiển thị day
                   final day = value.toInt() + 1;
                   return Transform.translate(
                     offset: const Offset(0, 6),
@@ -320,8 +279,12 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         lineBarsData: [
           LineChartBarData(
@@ -344,12 +307,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Tìm tick y gần nhất
   double _findNearest(double value, List<double> ticks) {
-    double minDiff = double.infinity;
-    double nearest = value;
-    for (double t in ticks) {
-      double diff = (t - value).abs();
+    var minDiff = double.infinity;
+    var nearest = value;
+    for (final t in ticks) {
+      final diff = (t - value).abs();
       if (diff < minDiff) {
         minDiff = diff;
         nearest = t;
@@ -358,10 +320,41 @@ class _HomeScreenState extends State<HomeScreen> {
     return nearest;
   }
 
+  Widget _buildBalanceCard(
+    String title,
+    String amount,
+    Color color,
+    IconData icon,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(height: 8),
+          Text(title, style: TextStyle(color: color, fontSize: 14)),
+          const SizedBox(height: 4),
+          Text(
+            amount,
+            style: TextStyle(
+              color: color,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRecentExpense() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return const Text("Chưa đăng nhập");
-
     return StreamBuilder<QuerySnapshot>(
       stream:
           FirebaseFirestore.instance
@@ -369,40 +362,34 @@ class _HomeScreenState extends State<HomeScreen> {
               .where("userId", isEqualTo: user.uid)
               .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text("Lỗi: ${snapshot.error}");
-        }
+        if (snapshot.hasError) return Text("Lỗi: ${snapshot.error}");
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Text("Không có khoản chi gần đây");
         }
-
-        final docs = snapshot.data!.docs;
-        final List<SimpleTransaction> allTx =
-            docs.map((doc) {
+        final allTx =
+            snapshot.data!.docs.map((doc) {
               final data = doc.data() as Map<String, dynamic>;
               final type = data['type'] ?? 'expense';
               final amount = (data['amount'] ?? 0).toDouble();
               final desc = data['description'] ?? '';
-              final category = data['category'] ?? 'Khác';
+              final cat = data['category'] ?? 'Khác';
               final ts = data['date'] as Timestamp?;
               final dt = ts?.toDate() ?? DateTime.now();
-              return SimpleTransaction(type, amount, dt, desc, category);
+              return SimpleTransaction(type, amount, dt, desc, cat);
             }).toList();
 
-        final expenseTx = allTx.where((tx) => tx.type == 'expense').toList();
-        expenseTx.sort((a, b) => b.date.compareTo(a.date));
-        final recent = expenseTx.take(3).toList();
-
-        if (recent.isEmpty) {
-          return const Text("Không có khoản chi gần đây");
-        }
+        final recent =
+            allTx.where((t) => t.type == 'expense').toList()
+              ..sort((a, b) => b.date.compareTo(a.date));
+        final show = recent.take(3).toList();
+        if (show.isEmpty) return const Text("Không có khoản chi gần đây");
 
         return Column(
           children:
-              recent.map((tx) {
+              show.map((tx) {
                 final timeString = DateFormat('dd/MM').format(tx.date);
                 return _buildTransactionItem(
                   title: tx.category,
@@ -497,57 +484,34 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBalanceCard(
-    String title,
-    String amount,
-    Color color,
-    IconData icon,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  amount,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
+  // ===== Build duy nhất (có AppBar + FAB mở Chat) =====
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Trang chủ'),
+        actions: [
+          IconButton(
+            tooltip: 'Hỏi cố vấn chi tiêu',
+            icon: const Icon(Icons.support_agent),
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const ChatScreen()));
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_chat',
+        icon: const Icon(Icons.chat),
+        label: const Text('Cố vấn'),
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const ChatScreen()));
+        },
+      ),
       body: SafeArea(
         child:
             _isLoading
@@ -580,6 +544,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
+
                       // Thu nhập & Khoản chi
                       Row(
                         children: [
@@ -604,17 +569,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Toggle biểu đồ
                       _buildChartModeToggle(),
                       const SizedBox(height: 16),
-
-                      // Dropdown theo chế độ
                       _chartMode == 1
                           ? _buildMonthDropdown()
                           : _buildSixMonthDropdown(),
                       const SizedBox(height: 16),
 
-                      // Biểu đồ
                       const Text(
                         'Tần suất chi tiêu',
                         style: TextStyle(
@@ -640,7 +601,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Recent Transaction
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -656,8 +616,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder:
-                                      (context) => const TransactionScreen(),
+                                  builder: (_) => const TransactionScreen(),
                                 ),
                               );
                             },
