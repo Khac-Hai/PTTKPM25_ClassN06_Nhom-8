@@ -7,14 +7,30 @@
 
 ---
 
-## 🖼️ Giao diện Ứng dụng
+## 📱 Giao diện Ứng dụng
 
-|                                                 Đăng nhập                                                 | Trang chủ (Dashboard) | Giao dịch & Lọc | Quản lý Ngân sách |
-| :-------------------------------------------------------------------------------------------------------: | :-------------------: | :-------------: | :---------------: |
-| <img width="423" height="842" alt="image" src="https://github.com/user-attachments/assets/81d4e4b2-bd6b-4a31-ab57-7a473410de05" />
- |        <img width="200" src="https://github.com/user-attachments/assets/4fd6418d-97c6-4f94-8dca-f011262674d6" />               |         <img width="421" height="844" alt="image" src="https://github.com/user-attachments/assets/77a5859c-810a-406f-81ac-5eeac6d4dd7f" />
-        |         <img width="463" height="852" alt="image" src="https://github.com/user-attachments/assets/06138e66-8557-487a-adf3-753f1db69d8c" />
-          |
+### 🔐 Màn hình Đăng nhập
+<img width="423" height="842" alt="Screenshot 2025-10-26 131739" src="https://github.com/user-attachments/assets/b3dbcef2-6831-4223-8d9d-ecd77931ccdf" />
+
+
+---
+
+### 🏠 Trang chủ (Dashboard)
+<img width="430" height="840" alt="Screenshot 2025-10-26 131159" src="https://github.com/user-attachments/assets/41fa8117-7634-46e8-a955-43ccf11541e0" />
+
+
+---
+
+### 💰 Giao dịch & Lọc
+<img width="421" height="844" alt="Screenshot 2025-10-26 131940" src="https://github.com/user-attachments/assets/245aa604-642e-40be-a372-5ed08b7acb89" />
+
+
+---
+
+### 🎯 Quản lý Ngân sách
+<img width="463" height="852" alt="Screenshot 2025-10-26 132005" src="https://github.com/user-attachments/assets/80e4b1c8-b67e-4270-a22e-48689c1c2202" />
+
+
 
 ---
 
