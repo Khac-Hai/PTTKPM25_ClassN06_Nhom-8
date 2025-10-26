@@ -7,10 +7,11 @@ class AppTheme {
   static const Color dangerColor = Color(0xFFFF4757);
   static const Color backgroundColor = Color(0xFFF8F9FE);
 
+  // 🌞 Chế độ sáng
   static ThemeData lightTheme = ThemeData(
     primaryColor: primaryColor,
     scaffoldBackgroundColor: backgroundColor,
-    fontFamily: 'SF Pro Display', // Thêm font chữ đẹp
+    fontFamily: 'SF Pro Display',
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -21,10 +22,36 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
+    ),
+  );
+
+  // 🌚 Chế độ tối (thêm từ khóa static!)
+  static ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: const Color(0xFF1E1E2C),
+    fontFamily: 'SF Pro Display',
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+      ),
+    ),
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(color: Colors.white70),
     ),
   );
 
@@ -55,4 +82,4 @@ class AppTheme {
       ),
     ],
   );
-} 
+}

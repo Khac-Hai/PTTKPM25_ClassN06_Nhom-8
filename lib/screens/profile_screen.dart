@@ -1,52 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quan_ly_chi_tieu/auth/login_screen.dart';
+import 'my.dart';
+import 'cai_dat_screen.dart';
+import 'xuat_du_lieu_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Hồ sơ cá nhân"),
+        backgroundColor: Colors.purple,
+        centerTitle: true,
+      ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey[200],
-                ),
-                child: const Icon(Icons.person, size: 50, color: Colors.grey),
+              // Ảnh đại diện + tên + email
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: user?.photoURL != null
+                    ? NetworkImage(user!.photoURL!)
+                    : null,
+                child: user?.photoURL == null
+                    ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                    : null,
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Tài Khoản',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              const SizedBox(height: 12),
+              Text(
+                user?.displayName ?? "Người dùng",
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 6),
+              Text(
+                user?.email ?? "Chưa có email",
+                style: const TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 30),
+
+              // Menu
               _buildMenuItem(
                 icon: Icons.person,
                 title: 'Về của tôi',
                 onTap: () {
-                  // TODO: Điều hướng đến trang "Về của tôi"
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const VeCuaToiScreen()),
+                  );
                 },
               ),
               _buildMenuItem(
                 icon: Icons.settings,
                 title: 'Cài đặt',
                 onTap: () {
-                  // TODO: Điều hướng đến trang Cài đặt
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CaiDatScreen()),
+                  );
                 },
               ),
               _buildMenuItem(
                 icon: Icons.download,
                 title: 'Xuất dữ liệu',
                 onTap: () {
-                  // TODO: Xử lý chức năng xuất dữ liệu
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const XuatDuLieuScreen()),
+                  );
                 },
               ),
               _buildMenuItem(
@@ -55,12 +87,11 @@ class ProfileScreen extends StatelessWidget {
                 isDestructive: true,
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
-                  // Sau khi đăng xuất, điều hướng đến màn hình đăng nhập.
-                  // Nếu bạn đã định nghĩa route '/login', sử dụng:
-                  //Navigator.of(context).pushReplacementNamed('/login');
-                  // Hoặc thay thế bằng:
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                  );
                 },
               ),
             ],
