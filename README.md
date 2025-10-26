@@ -146,13 +146,13 @@ flutter run
 
 Dự án được hoàn thành bởi **Nhóm [Tên Nhóm] – [Tên Lớp]:**
 
-| STT | Họ và Tên          | Mã sinh viên | GitHub                                  |
-| :-: | :----------------- | :----------- | :-------------------------------------  |
-|  1  | **Vũ Huy Kỳ**      | 22010414     | [@Vuhuyky](https://github.com/Vuhuyky)  |
-|  2  | **Nguyễn Khắc Hải**| 22010460     | [@Khac-Hai](https://github.com/Khac-Hai)|
-|  3  | [Tên thành viên 3] | [Mã SV]      | [@username]                             |
-|  4  | [Tên thành viên 4] | [Mã SV]      | [@username]                             |
-|  5  | [Tên thành viên 5] | [Mã SV]      | [@username]                             |
+| STT | Họ và Tên              | Mã sinh viên | GitHub                                                          |
+| :-: | :----------------------| :----------- | :---------------------------------------------------------------|
+|  1  | **Vũ Huy Kỳ**          | 22010414     | [@Vuhuyky](https://github.com/Vuhuyky)                          |
+|  2  | **Nguyễn Khắc Hải**    | 22010460     | [@Khac-Hai](https://github.com/Khac-Hai)                        |
+|  3  | **Nguyễn Hoàng Giang** | 22010370     | [@BlooDDonorGiangHoang](https://github.com/BlooDDonorGiangHoang)|
+|  4  | **Nguyễn Vũ Minh Thư** | 22010405     | [@nvmthu](https://github.com/nvmthu)                            |
+|  5  | **Lê Phi Yến**         | 22010423     | [@yenle254](https://github.com/yenle254)                        |
 
 ---
 ---
